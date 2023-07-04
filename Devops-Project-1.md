@@ -3,7 +3,7 @@
 The project aims to automate the building, testing, and deployment process of a web application using Jenkins and GitHub. The Jenkins pipeline will be triggered automatically by GitHub webhook integration when changes are made to the code repository. 
 The pipeline will include stages such as building, testing, and deploying the application, with notifications and alerts for failed builds or deployments.
 
-*Deployed the application using Jenkins declarative pipeline. Pipeline consists of  5 stages. Configured webhook on the github to automate the CI/CD.
+Deployed the application using Jenkins declarative pipeline. Pipeline consists of  5 stages. Configured webhook on the github to automate the CI/CD.
 When the code is pushed on github, github plugin in jenkins will check if the particular job has that git repository and has the GITScm polling. if yes then that job will start executing.
 
 
