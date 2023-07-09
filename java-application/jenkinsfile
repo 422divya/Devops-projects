@@ -33,17 +33,47 @@ pipeline {
         stage('Checking code using sonarqube') {
             
             environment {
-                sonar-url = ''
+                sonar-url = 'http://43.206.159.91:9000/'
             }
             
             
             steps {
                 
+                withCredentials([string(credentialsId: 'sonar-admin', variable: 'sonar-admin')]) {
+                   sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$sonar-admin -Dsonar.host.url=$sonar-url'
+
+                }
                 
-                
-                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app'
                 
             }
+        }
+        
+        
+        
+        stage('Build Docker image') {
+            
+            environment{
+                dockerimage = "divya422/java-spring-boot:${BUILD_NUMBER} ."
+            }
+            
+            steps {
+                
+                   sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${dockerimage} .' 
+                }
+            }
+            
+        
+        
+        
+        stage('Push Docker java application image to registry') {
+            
+            steps {
+                
+            
+        
+
+            
+                }
         }
     }
 }
