@@ -1,0 +1,49 @@
+pipeline {
+    
+    agent {
+        docker {
+            
+            image 'abhishekf5/maven-abhishek-docker-agent:v1'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    
+    
+    stages {
+        
+        
+        stage('pull code from github') {
+            
+            
+            steps {
+                
+                git branch: 'main', url: 'https://github.com/422divya/Jenkins-Zero-To-Hero.git/java-maven-sonar-argocd-helm-k8s'
+            }
+        }
+        
+        
+        stage('Building code, this stage create jar,war files') {
+            steps {
+                
+               sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+            }
+            
+        }
+        
+        stage('Checking code using sonarqube') {
+            
+            environment {
+                sonar-url = ''
+            }
+            
+            
+            steps {
+                
+                
+                
+                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app'
+                
+            }
+        }
+    }
+}
