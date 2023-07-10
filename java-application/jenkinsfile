@@ -33,7 +33,7 @@ pipeline {
         stage('Checking code using sonarqube') {
             
             environment {
-                sonar-url = 'http://43.206.159.91:9000/'
+                sonar_url = 'http://52.195.164.31:9000'
             }
             
             
@@ -68,12 +68,46 @@ pipeline {
         stage('Push Docker java application image to registry') {
             
             steps {
-                
+                withCredentials([string(credentialsId: 'docker-hub', variable: 'docker-hub-cred')]) {
+                    'sh docker push ${dockerimage}'
+    
+          }
             
         
 
             
                 }
         }
+        
+        
+        
+        stage('Modifiying the name of image in deployment.yml manifesr file') {
+            
+            environment {
+                
+                GIT_USERNAME = "422divya"
+                GIT_REPO = "Jenkins-Zero-To-Hero"
+            }
+            steps {
+                withCredentials([string(credentialsId: 'github', variable: 'git-cred')]) {
+    
+     
+                sh '''
+                
+                   sed 's/image-tag/${BUILD_NUMBER}/g' java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
+                  
+                   git add java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
+                   git commit -m "Changed the image tag"
+                   git push https://${git-cred}/@github.com/${GIT_USERNAME}/${GIT_REPO}
+  
+  
+                '''
+                }
+            }
+        }
     }
 }
+
+
+
+
