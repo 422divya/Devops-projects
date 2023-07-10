@@ -17,7 +17,7 @@ pipeline {
             
             steps {
                 
-                git branch: 'main', url: 'https://github.com/422divya/Jenkins-Zero-To-Hero.git/java-maven-sonar-argocd-helm-k8s'
+                git branch: 'main', url: 'https://github.com/422divya/Jenkins-Zero-To-Hero.git'
             }
         }
         
@@ -39,8 +39,9 @@ pipeline {
             
             steps {
                 
-                withCredentials([string(credentialsId: 'sonar-admin', variable: 'sonar-admin')]) {
-                   sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$sonar-admin -Dsonar.host.url=$sonar-url'
+                withCredentials([string(credentialsId: 'sonar-admin', variable: 'sonar_auth_token')]) {
+
+                   sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$sonar_auth_token -Dsonar.host.url=$sonar_url'
 
                 }
                 
@@ -53,7 +54,7 @@ pipeline {
         stage('Build Docker image') {
             
             environment{
-                dockerimage = "divya422/java-spring-boot:${BUILD_NUMBER} ."
+                dockerimage = "divya422/java-spring-boot:${BUILD_NUMBER}"
             }
             
             steps {
@@ -68,15 +69,17 @@ pipeline {
         stage('Push Docker java application image to registry') {
             
             steps {
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'docker-hub-cred')]) {
-                    'sh docker push ${dockerimage}'
+                withCredentials([string(credentialsId: 'docker-hub', variable: 'docker_auth')]) {
+
+                    sh 'docker login -u divya422 -p $docker_auth'
+                    sh 'docker push divya422/java-spring-boot:${BUILD_NUMBER}'
     
-          }
+               }
             
         
 
             
-                }
+            }
         }
         
         
@@ -85,20 +88,30 @@ pipeline {
             
             environment {
                 
-                GIT_USERNAME = "422divya"
-                GIT_REPO = "Jenkins-Zero-To-Hero"
-            }
+                GIT_USER_NAME = "422divya"
+                GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+                      
+                }
+                
             steps {
-                withCredentials([string(credentialsId: 'github', variable: 'git-cred')]) {
+                withCredentials([string(credentialsId: 'github', variable: 'git_auth')]) {
+
+
+
+
+
     
      
                 sh '''
-                
-                   sed 's/image-tag/${BUILD_NUMBER}/g' java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
+                   git config --global user.email "divyaprabhu422@gmail.com"
+                   git config --global user.name "Divya"
+                   build_number=${BUILD_NUMBER}
+                   sed -i "s/image-tag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
+                   
                   
                    git add java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
-                   git commit -m "Changed the image tag"
-                   git push https://${git-cred}/@github.com/${GIT_USERNAME}/${GIT_REPO}
+                   git commit -m "Update deployment image to version ${build_number}"
+                   git push https://${git_auth}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
   
   
                 '''
