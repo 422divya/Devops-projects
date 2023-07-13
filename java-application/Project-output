@@ -1,0 +1,86 @@
+
+$ ls -lrth /var/lib/jenkins/workspace/test/
+total 48K
+drwxr-xr-x. 2 jenkins jenkins   31 Jul 13 07:28 vars
+drwxr-xr-x. 2 jenkins jenkins   23 Jul 13 07:28 shared-libraries
+drwxr-xr-x. 6 jenkins jenkins  16K Jul 13 07:28 python-jenkins-argocd-k8s
+drwxr-xr-x. 2 jenkins jenkins   42 Jul 13 07:28 my-first-pipeline
+drwxr-xr-x. 2 jenkins jenkins   42 Jul 13 07:28 multi-stage-multi-agent
+drwxr-xr-x. 4 jenkins jenkins   72 Jul 13 07:28 java-maven-sonar-argocd-helm-k8s
+-rw-r--r--. 1 jenkins jenkins 4.7K Jul 13 07:28 README.md
+-rw-r--r--. 1 jenkins jenkins 1.1K Jul 13 07:28 LICENSE
+-rw-r--r--. 1 jenkins jenkins  11K Jul 13 07:28 Interview_Questions.md
+-rw-r--r--. 1 jenkins jenkins 5.1K Jul 13 07:28 CODE_OF_CONDUCT.md
+
+$ kubectl get pods -n java
+NAME                        READY   STATUS    RESTARTS   AGE
+java-app-7478495b9f-2qld8   1/1     Running   0          24s
+java-app-7478495b9f-8c2qn   1/1     Running   0          24s
+
+
+$ kubectl get deployments -n java
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+java-app   2/2     2            2           38s
+
+$ kubectl get svc -n java
+NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+java-service-manifest   NodePort   10.107.37.97   <none>        80:32314/TCP   81s
+
+
+ minikube service list
+|-------------|-----------------------|--------------|---------------------------|
+|  NAMESPACE  |         NAME          | TARGET PORT  |            URL            |
+|-------------|-----------------------|--------------|---------------------------|
+| default     | kubernetes            | No node port |                           |
+| java        | java-service-manifest | http/80      | http://192.168.49.2:32314 |
+| kube-system | kube-dns              | No node port |                           |
+|-------------|-----------------------|--------------|---------------------------|
+
+
+
+
+Able to access application internally in cluster:
+
+curl -v http://192.168.49.2:32314
+*   Trying 192.168.49.2:32314...
+* TCP_NODELAY set
+* Connected to 192.168.49.2 (192.168.49.2) port 32314 (#0)
+> GET / HTTP/1.1
+> Host: 192.168.49.2:32314
+> User-Agent: curl/7.68.0
+> Accept: */*
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 
+< Content-Type: text/html;charset=UTF-8
+< Content-Language: en-US
+< Transfer-Encoding: chunked
+< Date: Thu, 13 Jul 2023 07:39:59 GMT
+< 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"/>
+    <link href="/css/main.css?" rel="stylesheet">
+    <title>CI/CD Master Class By Abhishek Veeramalla</title>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Ultimate CI/CD Pipeline using Java</div></a>
+</nav>
+
+<main role="main" class="container">
+    <div class="starter-template">
+        <h1>I have successfuly built a sprint boot application using Maven</h1>
+        <p>This application is deployed on to Kubernetes using Argo CD</p>
+    </div>
+</main>
+
+<script src="/js/main.js"></script>
+</body>
+
+</html>
+* Connection #0 to host 192.168.49.2 left intact
+docker@minikube:~$ exit
