@@ -1,5 +1,13 @@
 pipeline {
     
+
+ environment {
+        TAG_NUMBER = getDockerTag()
+    }
+    
+    
+
+    
     agent {
         docker {
             
@@ -7,8 +15,13 @@ pipeline {
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
+
+
+
+ 
+ 
     
-    
+   
     stages {
         
         
@@ -22,7 +35,7 @@ pipeline {
         }
         
         
-        stage('Building code, this stage create jar,war files') {
+        stage('Building code, this stage create jar files') {
             steps {
                 
                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
@@ -33,7 +46,7 @@ pipeline {
         stage('Checking code using sonarqube') {
             
             environment {
-                sonar_url = 'http://52.195.164.31:9000'
+                sonar_url = 'http://43.207.183.249:9000'
             }
             
             
@@ -54,7 +67,7 @@ pipeline {
         stage('Build Docker image') {
             
             environment{
-                dockerimage = "divya422/java-spring-boot:${BUILD_NUMBER}"
+                dockerimage = "divya422/java-spring-boot:${TAG_NUMBER}"
             }
             
             steps {
@@ -72,7 +85,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'docker_auth')]) {
 
                     sh 'docker login -u divya422 -p $docker_auth'
-                    sh 'docker push divya422/java-spring-boot:${BUILD_NUMBER}'
+                    sh 'docker push divya422/java-spring-boot:${TAG_NUMBER}'
     
                }
             
@@ -103,24 +116,42 @@ pipeline {
     
      
                 sh '''
+                  
+                  
                    git config --global user.email "divyaprabhu422@gmail.com"
                    git config --global user.name "Divya"
-                   build_number=${BUILD_NUMBER}
-                   sed -i "s/image-tag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
-                   
-                  
+                   chmod +x java-maven-sonar-argocd-helm-k8s/spring-boot-app/sedplace.sh
+                    java-maven-sonar-argocd-helm-k8s/spring-boot-app/sedplace.sh ${TAG_NUMBER}
+                    
+                    
                    git add java-maven-sonar-argocd-helm-k8s/kubernete-manifest/deployment.yml
-                   git commit -m "Update deployment image to version ${build_number}"
+                   git commit -m "Update deployment image to version ${TAG_NUMBER}"
                    git push https://${git_auth}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-  
-  
                 '''
+                    
+                   sshagent(['jenkins-private-key']) {
+                     sh "scp -o StrictHostKeyChecking=no java-maven-sonar-argocd-helm-k8s/kubernete-manifest/* ec2-user@13.230.223.71:/home/ec2-user"
+                     sh "ssh ec2-user@13.230.223.71 kubectl apply -f ."
+                       }
+                  
+  
+              
                 }
             }
         }
+        
+       
+
     }
+    
+ 
+
 }
+    
+    
 
-
-
+def getDockerTag() {
+            def tag = sh script: 'git rev-parse HEAD', returnStdout: true
+            return tag
+ }
 
