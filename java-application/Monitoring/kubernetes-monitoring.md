@@ -1,7 +1,9 @@
 # Kubernetes Monitoring by installing grafana and prometheus using helm chart
 
 $ kubectl get pods -n kube-system
+
 NAME                               READY   STATUS    RESTARTS       AGE
+
 coredns-787d4945fb-rsjp6           1/1     Running   2 (3m5s ago)   7d22h
 etcd-minikube                      1/1     Running   2 (7d3h ago)   7d22h
 kube-apiserver-minikube            1/1     Running   2 (3m5s ago)   7d22h
