@@ -5,11 +5,17 @@ $ kubectl get pods -n kube-system
 NAME                               READY   STATUS    RESTARTS       AGE
 
 coredns-787d4945fb-rsjp6           1/1     Running   2 (3m5s ago)   7d22h
+
 etcd-minikube                      1/1     Running   2 (7d3h ago)   7d22h
+
 kube-apiserver-minikube            1/1     Running   2 (3m5s ago)   7d22h
+
 kube-controller-manager-minikube   1/1     Running   2 (3m5s ago)   7d22h
+
 kube-proxy-27csz                   1/1     Running   2 (3m5s ago)   7d22h
+
 kube-scheduler-minikube            1/1     Running   2 (7d3h ago)   7d22h
+
 storage-provisioner                1/1     Running   5 (2m1s ago)   7d22h
 
 1- Install helm tool by refering below article.
