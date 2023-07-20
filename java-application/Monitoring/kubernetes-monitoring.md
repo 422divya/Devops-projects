@@ -1,6 +1,6 @@
 # Kubernetes Monitoring by installing grafana and prometheus using helm chart
 
-]$ kubectl get pods -n kube-system
+$ kubectl get pods -n kube-system
 NAME                               READY   STATUS    RESTARTS       AGE
 coredns-787d4945fb-rsjp6           1/1     Running   2 (3m5s ago)   7d22h
 etcd-minikube                      1/1     Running   2 (7d3h ago)   7d22h
@@ -41,7 +41,7 @@ kube-prometheus-stack has been installed. Check its status by running:
 Visit https://github.com/prometheus-operator/kube-prometheus for instructions on how to create & configure Alertmanager and Prometheus instances using the Operator.
 
 
-4- Check if the pods are created and running. Below we can see grafana is alos installed.
+4- Check if the pods are created and running. Below we can see grafana is also installed.
 
 $ kubectl get pods -n monitoring
 NAME                                                     READY   STATUS    RESTARTS   AGE
@@ -67,4 +67,19 @@ prometheus-operated                       ClusterIP   None            <none>    
 prometheus-prometheus-node-exporter       ClusterIP   10.98.24.30     <none>        9100/TCP                     113s
 
 
-6- 
+6- To access the prometheus UI performed port forwarding as below running in background.
+
+kubectl port-forward --address 0.0.0.0 svc/prometheus-kube-prometheus-prometheus -n monitoring 9090 &
+
+Forwarding from 0.0.0.0:9090 -> 9090
+Handling connection for 9090
+
+$ kubectl port-forward --address 0.0.0.0 svc/prometheus-kube-state-metrics -n monitoring 8080
+Forwarding from 0.0.0.0:8080 -> 8080
+Handling connection for 8080
+
+
+7- Then on Grafana added the prometheus datasource and then used 741 preconfigured grafana dashboard for the kubernetes from below.
+
+https://grafana.com/grafana/dashboards/741-deployment-metrics/
+
